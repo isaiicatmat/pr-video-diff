@@ -1,0 +1,23 @@
+{
+  "name": "pr-video-diff",
+  "version": "0.1.0",
+  "description": "GitHub Action que genera un diff visual (video/gif) entre URL base y preview en cada PR.",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Container action: no build step needed'",
+    "lint": "echo 'Add eslint if needed'",
+    "test": "node -e \"console.log('ok')\""
+  },
+  "dependencies": {
+    "@octokit/rest": "^21.0.0",
+    "execa": "^8.0.1",
+    "playwright": "^1.46.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.16.0",
+    "typescript": "^5.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

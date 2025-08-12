@@ -1,0 +1,9 @@
+{
+  "actions": [
+    { "type": "wait", "ms": 1200 },
+    { "type": "scroll", "y": 800, "ms": 500 },
+    { "type": "wait", "ms": 500 },
+    { "type": "click", "selector": "a[href='/buy']" },
+    { "type": "wait", "ms": 1200 }
+  ]
+}

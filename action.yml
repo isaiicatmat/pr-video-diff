@@ -1,0 +1,57 @@
+name: 'PR Video Diff'
+description: 'Genera un clip/gif con el antes vs. después de un PR comparando deploy preview vs. base.'
+author: 'Isai Carreto'
+inputs:
+  url_base:
+    description: 'URL base (producción o main)'
+    required: true
+  url_preview:
+    description: 'URL del deploy preview (Netlify/Vercel) o entorno de pruebas'
+    required: true
+  duration_seconds:
+    description: 'Duración de la captura en segundos'
+    required: false
+    default: '8'
+  viewport_width:
+    description: 'Ancho del viewport'
+    required: false
+    default: '1280'
+  viewport_height:
+    description: 'Alto del viewport'
+    required: false
+    default: '720'
+  steps_json_path:
+    description: 'Ruta a un JSON con pasos (click, scroll, wait) para automatizar la demo'
+    required: false
+    default: ''
+  output_format:
+    description: 'mp4|gif|both'
+    required: false
+    default: 'both'
+  gif_fps:
+    description: 'FPS del GIF'
+    required: false
+    default: '12'
+  post_comment:
+    description: 'Publicar comentario en el PR con el enlace al run'
+    required: false
+    default: 'true'
+  lang:
+    description: 'Idioma para subtítulos estáticos (futuro)'
+    required: false
+    default: 'en'
+outputs:
+  video_path:
+    description: 'Ruta del MP4 generado'
+  gif_path:
+    description: 'Ruta del GIF generado (si aplica)'
+  thumbnail_path:
+    description: 'Ruta del PNG de thumbnail'
+  comment_url:
+    description: 'URL del comentario que dejó el bot (si aplica)'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  color: 'blue'
+  icon: 'film'
