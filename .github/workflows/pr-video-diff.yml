@@ -16,8 +16,8 @@ jobs:
       - name: Generate visual diff
         uses: ./
         with:
-          url_base: 'https://unsplash.com'
-          url_preview: 'https://pixabay.com'
+          url_base: 'https://www.samsung.com'
+          url_preview: 'https://www.apple.com'
           duration_seconds: 8
           viewport_width: 1280
           viewport_height: 720
