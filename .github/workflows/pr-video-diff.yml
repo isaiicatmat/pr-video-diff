@@ -1,0 +1,34 @@
+name: PR Video Diff
+
+on:
+  workflow_dispatch: {}  # Para correrlo manualmente
+
+jobs:
+  video-diff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate visual diff
+        uses: ./
+        with:
+          url_base: 'https://example.com'
+          url_preview: 'https://example.org'
+          duration_seconds: 8
+          viewport_width: 1280
+          viewport_height: 720
+          steps_json_path: 'scripts/steps.example.json'
+          output_format: 'both'
+          post_comment: 'false'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-video-diff
+          path: pr-video-diff/*
