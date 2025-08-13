@@ -3,17 +3,20 @@ FROM mcr.microsoft.com/playwright:v1.46.1-jammy
 
 WORKDIR /app
 
-# Dependencias
-COPY package.json package-lock.json* ./
-RUN npm ci --no-audit --no-fund
+# --- Dependencias ---
+# Solo copiamos package.json para aprovechar la cache de Docker
+COPY package.json ./
+# Usamos npm install (no requiere package-lock)
+RUN npm install --no-audit --no-fund
 
+# Copiamos el resto del código
 COPY tsconfig.json ./
 COPY src ./src
 
-# Asegurar ffmpeg y navegadores (ffmpeg suele venir, pero instalamos por si acaso)
+# FFmpeg (por si la imagen base no lo trae)
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 
-# Garantiza navegadores
+# Asegura navegadores Playwright
 RUN npx playwright install --with-deps chromium
 
 # Entrypoint (TypeScript con tsx)
