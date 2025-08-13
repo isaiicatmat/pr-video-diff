@@ -1,14 +1,18 @@
-# PR Video Diff (Starter)
+# PR Video Diff 🎬
 
-> Acción de GitHub que **graba dos URLs** (base vs. preview) y genera un **split‑screen MP4/GIF** para revisar cambios de UI en cada PR.
+> A GitHub Action that **records two URLs** (base vs. preview) and generates a **split-screen MP4/GIF** to visualize UI changes in every Pull Request.
 
-## 🚀 Uso rápido
+---
 
-1. Copia este repositorio dentro de tu repo (como carpeta `.github/actions/pr-video-diff/`) **o** publícalo como acción independiente.
-2. Crea un workflow (ejemplo abajo).
-3. Abre un PR con un deploy preview (Netlify/Vercel) y revisa el Job Summary + Artifacts.
+## 🚀 Quick Start
 
-### Ejemplo de workflow
+1. Add this action to your repository (e.g., in `.github/actions/pr-video-diff/`) **or** publish it as a standalone action.
+2. Create a workflow file (see example below).
+3. Open a PR with a deploy preview (Netlify/Vercel) and check the Job Summary + Artifacts.
+
+---
+
+## 🛠 Example Workflow
 
 ```yaml
 name: PR Video Diff
@@ -29,12 +33,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Si copiaste la acción en .github/actions/pr-video-diff
+      # If the action is in the root of the repo
       - name: Generate visual diff
-        uses: ./.github/actions/pr-video-diff
+        uses: ./
         with:
-          url_base: 'https://tu-sitio.com'
-          url_preview: ${{ steps.deploy_preview.outputs.url || 'https://preview.example.com' }}
+          url_base: 'https://unsplash.com'
+          url_preview: 'https://pixabay.com'
           duration_seconds: 8
           viewport_width: 1280
           viewport_height: 720
@@ -56,60 +60,6 @@ jobs:
         with:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            🎬 **PR Video Diff** listo.
-            ▶️ Descárgalo en la sección **Artifacts** de este run:
+            🎬 **PR Video Diff** ready.
+            ▶️ Download from the **Artifacts** section of this run:
             ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-```
-
-> **Nota:** La acción escribe un **thumbnail** directamente en el **Job Summary** del run.
-
-## ⚙️ Inputs
-
-| Nombre | Tipo | Default | Descripción |
-|---|---|---|---|
-| `url_base` | string | — | URL de producción/base |
-| `url_preview` | string | — | URL de preview |
-| `duration_seconds` | number | `8` | Duración de cada grabación |
-| `viewport_width` | number | `1280` | Ancho viewport |
-| `viewport_height` | number | `720` | Alto viewport |
-| `steps_json_path` | string | `''` | Ruta a JSON de pasos (ver abajo) |
-| `output_format` | enum | `both` | `mp4`, `gif` o `both` |
-| `gif_fps` | number | `12` | FPS del GIF |
-| `post_comment` | boolean | `true` | Comenta en el PR con enlace al run |
-| `lang` | string | `en` | Reservado para subtítulos |
-
-## 🧪 Pasos automatizados (opcional)
-
-Archivo JSON con un array en `actions`:
-
-```json
-{
-  "actions": [
-    { "type": "wait", "ms": 1000 },
-    { "type": "scroll", "y": 800, "ms": 600 },
-    { "type": "click", "selector": "a[href='/buy']" }
-  ]
-}
-```
-
-Tipos soportados: `wait`, `scroll`, `click`, `type`.
-
-## 🧱 Qué genera
-
-- `pr-video-diff/base.mp4` — captura de la URL base  
-- `pr-video-diff/preview.mp4` — captura de la URL preview  
-- `pr-video-diff/pr-video-diff.mp4` — split-screen  
-- `pr-video-diff/pr-video-diff.gif` — (opcional) GIF optimizado  
-- `pr-video-diff/thumbnail.png` — miniatura para Summary
-
-## ☁️ Hosting opcional
-
-Si subes el MP4/GIF a S3/Spaces, puedes editar `src/index.ts` para publicar y comentar con URL pública.
-
-## 🔒 Permisos
-
-El workflow requiere `pull-requests: write` e `issues: write` para comentar en el PR.
-
-## 🧾 Licencia
-
-MIT
