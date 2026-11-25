@@ -83,38 +83,52 @@ async function recordUrlToMp4(url: string, tag: string, inputs: ReturnType<typeo
   await fsp.mkdir(videoDir, { recursive: true });
 
   const browser = await chromium.launch();
-  const context = await browser.newContext({
-    viewport: { width: inputs.viewportWidth, height: inputs.viewportHeight },
-    recordVideo: { dir: videoDir, size: { width: inputs.viewportWidth, height: inputs.viewportHeight } }
-  });
-  const page = await context.newPage();
+  let webmPath = '';
   try {
-    await page.goto(url, { waitUntil: 'load', timeout: 60000 });
-    await page.waitForLoadState('networkidle', { timeout: 45000 });
+    const context = await browser.newContext({
+      viewport: { width: inputs.viewportWidth, height: inputs.viewportHeight },
+      recordVideo: { dir: videoDir, size: { width: inputs.viewportWidth, height: inputs.viewportHeight } }
+    });
+    const page = await context.newPage();
+    try {
+      await page.goto(url, { waitUntil: 'load', timeout: 60000 });
+      await page.waitForLoadState('networkidle', { timeout: 45000 });
 
-    // Ejecutar pasos si hay script
-    const steps = await loadSteps(inputs.stepsJsonPath);
-    if (steps.length) {
-      await runSteps(page, steps);
-    } else {
-      // Scroll suave (fallback)
-      await smoothScroll(page, inputs.duration);
+      // Ejecutar pasos si hay script
+      const steps = await loadSteps(inputs.stepsJsonPath);
+      if (steps.length) {
+        await runSteps(page, steps);
+      } else {
+        // Scroll suave (fallback)
+        await smoothScroll(page, inputs.duration);
+      }
+
+      // Asegura duración mínima
+      await page.waitForTimeout(Math.max(0, inputs.duration * 1000 - 1000));
+    } finally {
+      // Solo limpieza: cerrar página y contexto para que Playwright escriba el .webm.
+      // Sin return aquí, así un error de la grabación se propaga en vez de perderse.
+      const vid = page.video();
+      await safeClose(`page (${tag})`, () => page.close());
+      await safeClose(`context (${tag})`, () => context.close());
+      if (vid) webmPath = await vid.path().catch(() => '');
     }
-
-    // Asegura duración mínima
-    await page.waitForTimeout(Math.max(0, inputs.duration * 1000 - 1000));
   } finally {
-    // Guardar video
-    const vid = page.video();
-    await page.close();
-    const webmPath = vid ? await vid.path() : '';
-    await context.close();
-    await browser.close();
+    await safeClose(`browser (${tag})`, () => browser.close());
+  }
 
-    if (!webmPath) throw new Error('No se generó video .webm');
-    const mp4Path = path.join(outDir, `${tag}.mp4`);
-    await convertToMp4(webmPath, mp4Path);
-    return mp4Path;
+  if (!webmPath) throw new Error(`No se generó video .webm para ${tag}`);
+  const mp4Path = path.join(outDir, `${tag}.mp4`);
+  await convertToMp4(webmPath, mp4Path);
+  return mp4Path;
+}
+
+// Un fallo al cerrar no debe reemplazar el error original de la grabación.
+async function safeClose(what: string, close: () => Promise<void>) {
+  try {
+    await close();
+  } catch (e) {
+    log(`⚠️ No se pudo cerrar ${what}: ${(e as Error).message}`);
   }
 }
 
